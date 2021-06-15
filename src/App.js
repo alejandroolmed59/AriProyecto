@@ -3,52 +3,16 @@ import './App.css'
 import { Component } from 'react';
 import { Form, Input } from 'reactstrap';
 import FileSaver from 'file-saver';
-
-
-const Vigenere = (function(){
-  var AcharCode = 'A'.charCodeAt(0);
-  var ZcharCode = 'Z'.charCodeAt(0);
-  var AZlen = ZcharCode - AcharCode + 1;
-  
-  function encrypt( text, key, reverse, keepspaces ){    
-    var plaintext = keepspaces ? text : text.replace( /\s+/g, '' );
-    var messageLen = plaintext.length;
-    var keyLen = key.length;
-    var enctext = '';
-    var encriptionDir = reverse ? ( -1 * AZlen ) : 0;
-    
-    for( var i = 0; i < messageLen; i++ ){
-      var plainLetter = plaintext.charAt(i).toUpperCase();
-      if( plainLetter.match(/\s/) ){
-        enctext += plainLetter;
-        continue;
-      }
-      
-      var keyLetter = key.charAt( i % keyLen ).toUpperCase();
-      var vigenereOffset = keyLetter.charCodeAt(0) - AcharCode;
-      var encLetterOffset =  ( plainLetter.charCodeAt(0) - AcharCode + Math.abs( encriptionDir + vigenereOffset ) ) % AZlen;
-      
-      enctext +=  String.fromCharCode( AcharCode + encLetterOffset );          
-    }  
-    
-    return enctext;
-  }
-  
-  return {
-    encrypt : function( text, key,keepspaces ){
-      return encrypt( text, key, false, keepspaces );
-    },
-    
-    decrypt : function( text, key, keepspaces ){
-      return encrypt( text, key, true, keepspaces );
-    }
-  };  
-})()
+import {CifrarDegenere ,DescifrarDegenere } from './seguridad/Degenere';
+import {GenerateJWT, ValidateJWT} from './seguridad/Jwt'
 
 const initState = {
   key: "",
+  ciphed: "",
+  txt: "",
+  lectura: "123",
   myfile: null,
-  xml:"PRUEBA"
+  archivo:""
 }
 
 class App extends Component {
@@ -66,11 +30,10 @@ class App extends Component {
       [e.target.id]: e.target,
     })
     e.preventDefault()
-    // console.log(this.state.myfile.files)
     const reader = new FileReader()
     reader.onload = async (e) => {
       const text = (e.target.result)
-      this.Txt2XML(text)
+      this.state.lectura = text
     };
     reader.readAsText(e.target.files[0])
   }
@@ -82,10 +45,11 @@ class App extends Component {
 
     txt.split(';').forEach((param, k) => {
       if(k==3){ 
-        console.log(param)
-        const creditCard = Vigenere.encrypt(param, this.state.key, true)
-        console.log(creditCard)
-        xml += '   ' + categorias[i] + creditCard + categorias[i + 1] + '\n'
+        //TODO VIGENERE
+        const creditCardChiped = CifrarDegenere(param, this.state.key)
+        this.state.ciphed = creditCardChiped
+
+        xml += '   ' + categorias[i] + creditCardChiped + categorias[i + 1] + '\n'
       }
       else{
         xml += '   ' + categorias[i] + param.trim() + categorias[i + 1] + '\n'
@@ -94,14 +58,51 @@ class App extends Component {
     })
     const final = xml + '</cliente> \n';
     this.setState({
-      xml: final
+      xml: final,
+      archivo: final
     })
   }
+  Txt2JSON = async(txt) => {
+    var json = {};
+    var categorias = ["documento", "primer-nombre", "apellido", "credit-card", "tipo", "telefono"];
+
+    txt.split(';').forEach((param, i) => {
+        json[categorias[i]] = param.trim();
+    })
+    this.setState({json: json, archivo: JSON.stringify(json)})
+    GenerateJWT(json, this.state.key).then(jwt=>{
+       this.setState({jwt})
+     })
+    
+}
   submitHandler = e => {
     e.preventDefault()
-    var file = new File([this.state.xml], "pruebisss.xml", {type: "application/xml"});
+    if(e.target.id==="descargarXml"){
+      var file = new File([this.state.xml], "pruebisss.xml", {type: "application/xml"});
+    }else if(e.target.id==="descargarJson"){
+      var file = new File([JSON.stringify(this.state.json)], "pruebisss.json", {type: "application/json"});
+    }
     FileSaver.saveAs(file);
   } 
+  descifrarHandler = e =>{
+    e.preventDefault()
+    const decifrado = DescifrarDegenere(this.state.ciphed, this.state.key)
+    console.log("DECIFRADO: "+ decifrado)
+    this.setState({
+      ciphed: decifrado
+    })
+  }
+  changeLabel = e  =>{
+    const archivo = e.target.id
+    if(archivo==="generateJson") this.Txt2JSON(this.state.lectura)
+    else if(archivo==="generateXml") this.Txt2XML(this.state.lectura)
+  }
+  validarJwt = e=>{
+    e.preventDefault()
+    ValidateJWT(this.state.jwt, this.state.key).then((respuesta)=>{
+     console.log(respuesta)
+    })
+  }
 
   render() {
     return (
@@ -121,12 +122,21 @@ class App extends Component {
         </a>
           <Form>
             <Input size={50} className='transparentInput' type="text" name="key" id="key" onChange={this.changeHandler} placeholder="Ingresa" onChange={this.changeHandler} value={this.state.key} />
-            <Input type="file" id="myfile" name="myfile" onChange={(e) => this.changeFile(e)} value={this.state.txt}  /> <br />
-            <label type="text" name="xml" id="xml"> {this.state.xml}</label><br />
-            <button onClick={this.submitHandler} >Darle play 🥴 </button> <br />
-            
+            <Input type="file" id="myfile" name="myfile" onChange={(e) => this.changeFile(e)}  /> <br />
+            <div>
+              <button id="descargarXml" onClick={e=>this.submitHandler(e)} >Descargar xml hey 🥴 </button>
+              <button id="descargarJson" onClick={e=>this.submitHandler(e)} >Descargar json hey 🥴 </button> <br />
+            </div>
+            <button onClick={this.descifrarHandler} >Descifre hey 🥴 </button>
+            <button onClick={this.validarJwt} >Validar JWT 🥴 </button>
+            <label type="text" name="ciphed" id="ciphed">{this.state.ciphed}</label>
             
           </Form>
+          <label type="text" name="archivo" id="archivo">{this.state.archivo}</label><br />
+          <div>
+            <button id="generateJson" onClick={e => this.changeLabel(e)} >Generar json 🥴 </button>
+            <button id="generateXml" onClick={e=> this.changeLabel(e)} >General xml 🥴 </button>
+          </div>
         </header>
       </div>
 
