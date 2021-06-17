@@ -12,7 +12,8 @@ const initState = {
   txt: "",
   lectura: "123",
   myfile: null,
-  archivo:""
+  archivo:"",
+  jwt:{}
 }
 
 class App extends Component {
@@ -71,8 +72,10 @@ class App extends Component {
     })
     this.setState({json: json, archivo: JSON.stringify(json)})
     GenerateJWT(json, this.state.key).then(jwt=>{
+        localStorage.setItem('jwtSesion', jwt);
        this.setState({jwt})
      })
+     
     
 }
   submitHandler = e => {
@@ -99,6 +102,9 @@ class App extends Component {
   }
   validarJwt = e=>{
     e.preventDefault()
+    if(localStorage.getItem("jwtSesion")!==null){
+        this.setState({jwt: localStorage.getItem("jwtSesion")})
+    }
     ValidateJWT(this.state.jwt, this.state.key).then((respuesta)=>{
      console.log(respuesta)
     })
@@ -136,6 +142,9 @@ class App extends Component {
           <div>
             <button id="generateJson" onClick={e => this.changeLabel(e)} >Generar json 🥴 </button>
             <button id="generateXml" onClick={e=> this.changeLabel(e)} >General xml 🥴 </button>
+          </div>
+          <div>
+            <button id="jwtLocal" onClick={e => this.validarJwt(e)} >Generar json del jwt almacenado en navegador🥴 </button>
           </div>
         </header>
       </div>
