@@ -22,7 +22,8 @@ const initState = {
   delimitador: ";",
   flag:false,
   flagInvalido:false,
-  jwtRes:""
+  jwtRes:"",
+  error:"ERROR"
 }
 const props = {
   name: 'file',
@@ -62,7 +63,7 @@ class App extends Component {
 
 
   Txt2XML = txt => {
-    console.log("Hace xml")
+    if(this.state.lectura===""){ this.setState({error:"ENTRADA VACIA", flag2:true}); return}
 
     var xml = '<cliente> \n'
     var i = 0;
@@ -90,7 +91,7 @@ class App extends Component {
     })
   }
   Txt2JSON = async (txt) => {
-    console.log("Hace json")
+    if(this.state.lectura===""){ this.setState({error:"ENTRADA VACIA", flag2:true}); return}
     var json = {};
     var categorias = ["documento", "primer-nombre", "apellido", "credit-card", "tipo", "telefono"];
 
@@ -108,6 +109,7 @@ class App extends Component {
   }
 
   JSON2Txt = (json, delimitador) => {
+    if(this.state.lectura===""){ this.setState({error:"ENTRADA VACIA", flag2:true}); return}
     var str = ""
     for (let key in json) {
       str += json[key] + delimitador
@@ -118,6 +120,7 @@ class App extends Component {
     FileSaver.saveAs(file);
   }
   XML2TXT = (xml, delimitador) => {
+    if(this.state.lectura===""){ this.setState({error:"ENTRADA VACIA", flag2:true}); return}
     var parser, xmlDoc;
 
     parser = new DOMParser();
@@ -130,6 +133,7 @@ class App extends Component {
   }
   submitHandler = (e, target) => {
     e.preventDefault()
+    if(this.state.lectura===""){ this.setState({error:"ENTRADA VACIA", flag2:true}); return}
     if (target === "descargarXml") {
       var file = new File([this.state.xml], "pruebisss.xml", { type: "application/xml" });
     } else if (target === "descargarJson") {
@@ -182,7 +186,7 @@ class App extends Component {
         />}
         {this.state.flag2&&<Alert
           message="Error"
-          description="Llave de JWT invalida"
+          description={this.state.error}
           type="error"
           showIcon
           closable
