@@ -177,71 +177,8 @@ class App extends Component {
     return (
 
       <div className="App">
-        {this.state.flag&&<Alert
-          message="JWT VALIDADO"
-          description={JSON.stringify(this.state.jwtRes)}
-          type="success"
-          showIcon
-          closable
-        />}
-        {this.state.flag2&&<Alert
-          message="Error"
-          description={this.state.error}
-          type="error"
-          showIcon
-          closable
-        />}
         <header className="App-header">
-          <Dragger {...props} onChange={(info) => this.changeFile(info)} >
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">Clickear o arrastrar en este area</p>
-            <p className="ant-upload-hint">
-              Solo subir archivos .txt .xml o .json
-            </p>
-          </Dragger>
-          <Form>
-            <Input prefix={<KeyOutlined />} name="key" id="key" placeholder="Llave ultra secreta 🤐" onChange={this.changeHandler} value={this.state.key.toLowerCase()} />
-            <Row justify="center" gutter={30}>
-              <Col className="gutter-row">
-                <Button type="primary" name="generateXml" id="generateXml" onClick={() => this.Txt2XML(this.state.lectura)} >General xml 🥴 </Button>
-              </Col>
-              <Col className="gutter-row">
-                <Button type="primary" name="generateJson" id="generateJson" onClick={() => this.Txt2JSON(this.state.lectura)}>Generar json 🥴 </Button>
-              </Col>
-
-            </Row>
-            <Row justify="center" gutter={30}>
-              <Col className="gutter-row">
-                <Button type="primary" id="descargarXml" onClick={(e) => this.submitHandler(e, "descargarXml")} >Descargar xml hey 🥴 </Button>
-              </Col>
-              <Col className="gutter-row">
-                <Button type="primary" id="descargarJson" onClick={(e) => this.submitHandler(e, "descargarJson")} >Descargar json hey 🥴 </Button>
-              </Col>
-              <Col className="gutter-row">
-                <Button type="primary" name="generateTxt" id="generateTxt" onClick={() => this.JSON2Txt(JSON.parse(this.state.lectura), this.state.delimitador)}>JSON A txt 🥴 </Button>
-              </Col>
-              <Col className="gutter-row">
-                <Input maxLength={1} size="small" prefix={<KeyOutlined />} name="delimitador" id="delimitador" placeholder="Delimitador 🤐" onChange={this.changeHandler} value={this.state.delimitador} />
-              </Col>
-              <Col className="gutter-row">
-                <Button type="primary" name="generateTxt2" id="generateTxt2" onClick={() => this.XML2TXT(this.state.lectura, this.state.delimitador)}>XML A txt 🥴 </Button>
-              </Col>
-            </Row>
-            <Row justify="center" gutter={30}>
-              <Col className="gutter-row">
-                <Button type="primary" onClick={this.descifrarHandler} >Descifre hey 🥴 </Button>
-              </Col>
-              <Col className="gutter-row">
-                <Button type="primary" onClick={this.validarJwt} >Validar JWT 🥴 </Button>
-              </Col>
-            </Row>
-          </Form>
-          <label type="text" name="archivo" id="archivo">{this.state.archivo}</label><br />
-          <Tag color="volcano" icon={<UnlockOutlined />} type="text" name="ciphed" id="ciphed">{this.state.displayCifrado}</Tag><br />
           <iframe width="700" height="360" src="https://w2.countingdownto.com/4126435" frameborder="0"></iframe>
-
         </header>
       </div>
 
