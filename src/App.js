@@ -180,6 +180,7 @@ class App extends Component {
         <header className="App-header">
           <iframe width="300" height="154" src="https://w2.countingdownto.com/4797689" frameborder="0"></iframe>
         </header>
+      <iframe src="https://calendar.google.com/calendar/embed?src=tno616rbdictr3orkkee2b5e68%40group.calendar.google.com&ctz=America%2FEl_Salvador" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
       </div>
 
     )
